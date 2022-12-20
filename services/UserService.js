@@ -103,14 +103,14 @@ class UserService {
         }
         return results;
     }
-    
+
     /**
      * Function to get user
      * @param {Integer} userId The user Id
      * @return {Object} Return user info
      */
-    static async get (userId)  {
-        let queryResults  = await database.postgresPool.query('SELECT * FROM users WHERE id = $1',[userId]);
+    static async get(userId) {
+        let queryResults = await database.postgresPool.query('SELECT * FROM users WHERE id = $1', [userId]);
         return {
             userName: queryResults.rows[0].username,
             fullName: queryResults.rows[0].first_name + " " + queryResults.rows[0].last_name,
