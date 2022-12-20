@@ -2,7 +2,6 @@ const database = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Utility = require('../utils');
-
 const SALTROUNDS = 10;
 
 class UserService {
@@ -12,7 +11,20 @@ class UserService {
      * @returns {Object}
      */
     static async getList(offset) {
-        return await database.postgresPool.query('SELECT * FROM users OFFSET $1 LIMIT 50', [offset]);
+        let results, queryString;
+        queryString = `
+            SELECT 
+                id,
+                first_name,
+                last_name,
+                email_address,
+                phone_number
+            FROM 
+               users
+            OFFSET $1 LIMIT 10
+        `
+        results = await database.postgresPool.query(queryString, [offset]);
+        return results.rows;
     }
     /**
      * Function to login and generate a jwt token
@@ -35,7 +47,6 @@ class UserService {
                     expiresIn: '1h',
                 });
                 refreshToken = Utility.generateRandomToken(45);
-                console.log(Utility.featureTime(48));
                 await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
                     , [userDetails.id, refreshToken, Utility.featureTime(48)]);
                 response = {
@@ -110,12 +121,34 @@ class UserService {
      * @return {Object} Return user info
      */
     static async get(userId) {
-        let queryResults = await database.postgresPool.query('SELECT * FROM users WHERE id = $1', [userId]);
+        let queryResult, queryString;
+        queryString =
+            `SELECT 
+                users.id,
+                users.username,
+                users.first_name,
+                users.last_name,
+                users.email_address,
+                users.phone_number,
+                users.email_address,
+                roles.type as role_type
+            FROM 
+                users 
+            LEFT JOIN 
+                user_roles ON user_roles.user_id = users.id 
+            LEFT JOIN 
+               roles ON user_roles.role_id = roles.id 
+            WHERE 
+                users.id = $1      
+            LIMIT 1
+            `
+        queryResult = await database.postgresPool.query(queryString, [userId]);
         return {
-            userName: queryResults.rows[0].username,
-            fullName: queryResults.rows[0].first_name + " " + queryResults.rows[0].last_name,
-            email: queryResults.rows[0].email_address,
-            phoneNumber: queryResults.rows[0].phone_number
+            userName: queryResult.rows[0].username,
+            fullName: queryResult.rows[0].first_name + " " + queryResult.rows[0].last_name,
+            email: queryResult.rows[0].email_address,
+            phoneNumber: queryResult.rows[0].phone_number,
+            roleType: queryResult.rows[0].role_type
         };
     }
 }
