@@ -1,10 +1,10 @@
 CREATE TABLE users(
     id BIGSERIAL NOT NULL PRIMARY KEY,
-    username VARCHAR NOT NULL,
+    username VARCHAR UNIQUE NOT NULL ,
     password VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
-    email_address VARCHAR NOT NULL,
+    email_address VARCHAR UNIQUE NOT NULL ,
     phone_number VARCHAR NOT NULL,
     active BOOLEAN NOT NULL
 );
