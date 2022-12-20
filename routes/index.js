@@ -20,6 +20,19 @@ router.post('/login', async (req, res, next) => {
     res.status(401).json(results);
   }
 });
+
+router.post('/register', async (req, res, next) => {
+  let results,userDetails;
+  userDetails = req.body;
+  userDetails.roleType = 'USER';
+  results = await UserService.register(userDetails);
+  if (results.success) {
+    res.status(200).json(results);
+  }
+  else {
+    res.status(400).json(results);
+  }
+});
 router.post('/refreshToken', async (req, res, next) => {
   let results = await UserService.refreshToken(req.body.refreshToken);
   if (results.success) {

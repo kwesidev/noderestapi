@@ -68,9 +68,50 @@ class UserService {
      * @param {Object} An object describing the user to be registered
      * @returns {Object}
      */
-    static async register() {
-
-
+    static async register(userDetails) {
+        let results, queryString, passwordHash, queryResult, userId;
+        try {
+            database.postgresPool.query('BEGIN');
+            queryString = `
+                INSERT INTO users
+                    (username, password, first_name,last_name, email_address, phone_number, active)
+                VALUES
+                    ($1, $2, $3, $4, $5, $6, true) 
+                    
+                RETURNING id ;
+            `
+            passwordHash = await bcrypt.hash(userDetails.password, SALTROUNDS);
+            queryResult = await database.postgresPool.query(queryString,
+                [
+                    userDetails.userName,
+                    passwordHash,
+                    userDetails.firstName,
+                    userDetails.lastName,
+                    userDetails.emailAddress,
+                    userDetails.phoneNumber,
+                ]);
+            userId = queryResult.rows[0].id;
+            queryString = `
+            INSERT INTO 
+                user_roles(user_id, role_id) 
+            VALUES
+                ($1, (SELECT id FROM roles WHERE type = $2))
+            `
+            await database.postgresPool.query(queryString, [userId, userDetails.roleType]);
+            await database.postgresPool.query('COMMIT');
+            results = {
+                success: true,
+            }
+            return results;
+        }
+        catch (error) {
+            console.log(error);
+            database.postgresPool.query('ROLLBACK');
+        }
+        results = {
+            success : false
+        }
+        return results;
     }
     /**
      * Function to generate refresh token
