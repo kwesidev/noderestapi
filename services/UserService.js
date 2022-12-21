@@ -37,8 +37,8 @@ class UserService {
         queryResult = await database.postgresPool.query('SELECT id, username,password FROM users WHERE username=$1', [username]);
         // if user exists check if password is valid then generate a token
         if (queryResult.rowCount == 1) {
-            userDetails = queryResult.rows[0];
-            comparePassword = await bcrypt.compare(password, userDetails.password);
+            comparePassword = await bcrypt.compare(password, queryResult.rows[0].password);
+            userDetails = await UserService.get(queryResult.rows[0].id);
             if (comparePassword) {
                 // Generate JWT token
                 token = jwt.sign({
@@ -48,11 +48,12 @@ class UserService {
                 });
                 refreshToken = Utility.generateRandomToken(45);
                 await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
-                    , [userDetails.id, refreshToken, Utility.featureTime(48)]);
+                    , [userDetails.userId, refreshToken, Utility.featureTime(48)]);
                 response = {
                     success: true,
                     token: token,
                     refreshToken: refreshToken,
+                    role : userDetails.roleType
                 }
                 return response;
             }
@@ -172,6 +173,7 @@ class UserService {
                 users.email_address,
                 users.phone_number,
                 users.email_address,
+                users.active,
                 roles.type as role_type
             FROM 
                 users 
@@ -185,11 +187,13 @@ class UserService {
             `
         queryResult = await database.postgresPool.query(queryString, [userId]);
         return {
+            userId: queryResult.rows[0].id,
             userName: queryResult.rows[0].username,
             fullName: queryResult.rows[0].first_name + " " + queryResult.rows[0].last_name,
             email: queryResult.rows[0].email_address,
             phoneNumber: queryResult.rows[0].phone_number,
-            roleType: queryResult.rows[0].role_type
+            roleType: queryResult.rows[0].role_type,
+            active: queryResult.rows[0].active
         };
     }
 }
