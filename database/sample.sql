@@ -5,7 +5,7 @@
 -- Dumped from database version 12.13 (Ubuntu 12.13-1.pgdg20.04+1)
 -- Dumped by pg_dump version 15.1 (Ubuntu 15.1-1.pgdg20.04+1)
 
--- Started on 2022-12-20 15:02:45 SAST
+-- Started on 2022-12-21 09:10:23 SAST
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -252,6 +252,11 @@ COPY public.roles (id, type) FROM stdin;
 
 COPY public.user_refresh_tokens (id, user_id, token, created, expiry_time) FROM stdin;
 19	2	lqe4BtVTrCpHlBUtcvMiiEBp3j8Wk/jbCieTYsE4RyY=	2022-12-20 14:46:26.821578	2022-12-22 14:46:26.822
+20	2	ZNkrl2IbnRzNsfEqiz3myRNfq6MKfOEejZzSaMEYqGg=	2022-12-20 18:02:51.884476	2022-12-22 18:02:51.884
+22	2	+bOVd5HTji4lYcHEOzlwwLXHbrC9ThbxeviL2rJImjM=	2022-12-20 20:10:27.353585	2022-12-22 20:10:27.355
+23	5	KdoutPcZeXZMOHg58H2cY53llptX4z2hRXUANQieG6s=	2022-12-21 08:43:19.598039	2022-12-23 08:43:19.597
+28	5	z27l0SXKhJsD7CR9LKza4V656PUIdp5sktgj9HXCdGE=	2022-12-21 08:55:47.485825	2022-12-23 08:55:47.485
+29	5	WxzTAgZz77QezWkvfDcC7O22HKZY86xySPy2xGk9acA=	2022-12-21 09:06:59.746506	2022-12-23 09:06:59.746
 \.
 
 
@@ -262,6 +267,9 @@ COPY public.user_refresh_tokens (id, user_id, token, created, expiry_time) FROM 
 --
 
 COPY public.user_roles (id, user_id, role_id) FROM stdin;
+1	2	2
+2	3	2
+3	5	2
 \.
 
 
@@ -273,6 +281,8 @@ COPY public.user_roles (id, user_id, role_id) FROM stdin;
 
 COPY public.users (id, username, password, first_name, last_name, email_address, phone_number, active) FROM stdin;
 2	kwesidev	$2b$10$ZUxvgBfXjXxxDyEUwcB11eGHJCb1LwaYC6dSVdKxaNTJLz3X.a62O	William	Akomaning	kwasidev@protonmail.com	0660517444	t
+3	apalo	$2b$10$4KAofVbTqHGRrE8YQfWLieFnizEcqNDVyEvkbjiGJmGyGfiNVhWq.	Jane	Doe	zalak420@pm.me	010101010101	t
+5	jackie	$2b$10$yEG8b/9TmQ5kbKlrauB6ZuxhhRAbfIx6IfbjGJIQirw8onfMrTeYO	Kwesi	Jones	willzako@aol.com	0738455979	t
 \.
 
 
@@ -291,7 +301,7 @@ SELECT pg_catalog.setval('public.roles_id_seq', 2, true);
 -- Name: user_refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_refresh_tokens_id_seq', 19, true);
+SELECT pg_catalog.setval('public.user_refresh_tokens_id_seq', 29, true);
 
 
 --
@@ -300,7 +310,7 @@ SELECT pg_catalog.setval('public.user_refresh_tokens_id_seq', 19, true);
 -- Name: user_roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_roles_id_seq', 1, false);
+SELECT pg_catalog.setval('public.user_roles_id_seq', 3, true);
 
 
 --
@@ -309,7 +319,7 @@ SELECT pg_catalog.setval('public.user_roles_id_seq', 1, false);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 2, true);
+SELECT pg_catalog.setval('public.users_id_seq', 5, true);
 
 
 --
@@ -385,7 +395,7 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2022-12-20 15:02:45 SAST
+-- Completed on 2022-12-21 09:10:23 SAST
 
 --
 -- PostgreSQL database dump complete
