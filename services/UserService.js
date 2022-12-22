@@ -44,7 +44,7 @@ class UserService {
                 token = jwt.sign({
                     userId: userDetails.id,
                 }, process.env.JWT_SECRET, {
-                    expiresIn: '1h',
+                    expiresIn: '30m',
                 });
                 refreshToken = Utility.generateRandomToken(45);
                 await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
@@ -132,7 +132,7 @@ class UserService {
                 token = jwt.sign({
                     userId: userDetails.user_id,
                 }, process.env.JWT_SECRET, {
-                    expiresIn: '1h',
+                    expiresIn: '30m',
                 });
                 newRefreshToken = Utility.generateRandomToken(45);
                 await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
