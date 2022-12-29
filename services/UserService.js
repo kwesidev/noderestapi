@@ -32,7 +32,7 @@ class UserService {
      * @param {String} password 
      * @returns {Object} 
      */
-    static async login(username, password) {
+    static async login(username, password, userIp, userAgent) {
         let queryResult, comparePassword, response, token, userDetails, refreshToken;
         try {
             await database.postgresPool.query('BEGIN');
@@ -49,8 +49,8 @@ class UserService {
                         expiresIn: '30m',
                     });
                     refreshToken = Utility.generateRandomToken(45);
-                    await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
-                        , [userDetails.userId, refreshToken, Utility.featureTime(48)]);
+                    await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time,ip_address,user_agent) VALUES($1, $2, NOW(), $3, $4, $5) '
+                        , [userDetails.userId, refreshToken, Utility.featureTime(48), userIp, userAgent]);
                     response = {
                         success: true,
                         token: token,
@@ -131,7 +131,7 @@ class UserService {
      * @param {String} A string containing the refresh token
      * @returns {Object} 
      */
-    static async refreshToken(oldRefreshToken) {
+    static async refreshToken(oldRefreshToken, userIp, userAgent) {
         let queryResults, token, results, userDetails, newRefreshToken;
         queryResults = await database.postgresPool.query('SELECT user_id, token FROM user_refresh_tokens WHERE token = $1 AND expiry_time > NOW() ', [oldRefreshToken]);
         // If token exists then generate new jwt and refresh token for the current loggin in user
@@ -147,8 +147,8 @@ class UserService {
                     expiresIn: '30m',
                 });
                 newRefreshToken = Utility.generateRandomToken(45);
-                await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
-                    , [userDetails.user_id, newRefreshToken, Utility.featureTime(48)]);
+                await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time, ip_address, user_agent) VALUES($1, $2, NOW(), $3, $4, $5) '
+                    , [userDetails.user_id, newRefreshToken, Utility.featureTime(48), userIp, userAgent]);
                 await database.postgresPool.query('COMMIT');
             }
             catch (error) {

@@ -9,10 +9,12 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/login', async (req, res, next) => {
+  const userIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+  const userAgent = req.get('user-agent');
   if (!req.body.username || !req.body.password) {
     res.status(400).json({success: false, error: "Username and Password is required"});
   }
-  let results = await UserService.login(req.body.username, req.body.password);
+  let results = await UserService.login(req.body.username, req.body.password, userIp, userAgent);
   if (results.success) {
     res.status(200).json(results);
   }
@@ -34,12 +36,14 @@ router.post('/register', async (req, res, next) => {
   }
 });
 router.post('/refreshToken', async (req, res, next) => {
+  const userIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+  const userAgent = req.get('user-agent');
   let results,refreshToken;
   refreshToken = req.body.refreshToken || null;
   if (refreshToken == null) {
     res.status(400).json({success: false,error : "Refresh token is required"});
   }
-  results = await UserService.refreshToken(refreshToken);
+  results = await UserService.refreshToken(refreshToken,userIp, userAgent);
   if (results.success) {
     res.status(200).json(results);
   }

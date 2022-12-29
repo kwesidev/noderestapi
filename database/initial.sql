@@ -14,6 +14,8 @@ CREATE TABLE user_refresh_tokens(
     user_id INTEGER REFERENCES users(id) NOT NULL,
     token VARCHAR NOT NULL,
     created TIMESTAMP NOT NULL,
+    ip_address VARCHAR NOT NULL,
+    user_agent VARCHAR NOT NULL,
     expiry_time TIMESTAMP NOT NULL
 );
 
