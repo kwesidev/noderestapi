@@ -34,12 +34,33 @@ router.post('/register', async (req, res, next) => {
   }
 });
 router.post('/refreshToken', async (req, res, next) => {
-  let results = await UserService.refreshToken(req.body.refreshToken);
+  let results,refreshToken;
+  refreshToken = req.body.refreshToken || null;
+  if (refreshToken == null) {
+    res.status(400).json({success: false,error : "Refresh token is required"});
+  }
+  results = await UserService.refreshToken(refreshToken);
   if (results.success) {
     res.status(200).json(results);
   }
   else {
     res.status(401).json(results);
   }
+});
+
+router.post('/logout',async(req,res, next) => {
+  let results,refreshToken;
+  refreshToken = req.body.refreshToken || null;
+  if (refreshToken == null) {
+    res.status(400).json({success: false,error : "Refresh token is required"});
+  }
+  results = await UserService.deleteToken(refreshToken);
+  if (results.success) {
+    res.status(200).json(results);
+  }
+  else {
+    res.status(500).json(results);
+  }
+
 });
 module.exports = router;

@@ -196,5 +196,26 @@ class UserService {
             active: queryResult.rows[0].active
         };
     }
+
+    /**
+     * Function to delete Token
+     * @param {String} refreshToken
+     * @return {Object}
+     */
+    static async deleteToken(refreshToken) {
+        let queryResult ;
+        queryResult = await database.postgresPool.query('DELETE FROM user_refresh_tokens WHERE token = $1', [refreshToken]);
+        if (queryResult.rowCount > 0) {
+            return {
+                success : true,
+            }
+        }
+        else {
+            return {
+                success : false
+            }
+        }
+
+    }
 }
 module.exports = UserService;
