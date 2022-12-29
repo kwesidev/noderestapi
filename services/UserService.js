@@ -34,33 +34,45 @@ class UserService {
      */
     static async login(username, password) {
         let queryResult, comparePassword, response, token, userDetails, refreshToken;
-        queryResult = await database.postgresPool.query('SELECT id, username,password FROM users WHERE username=$1', [username]);
-        // if user exists check if password is valid then generate a token
-        if (queryResult.rowCount == 1) {
-            comparePassword = await bcrypt.compare(password, queryResult.rows[0].password);
-            userDetails = await UserService.get(queryResult.rows[0].id);
-            if (comparePassword) {
-                // Generate JWT token
-                token = jwt.sign({
-                    userId: userDetails.id,
-                }, process.env.JWT_SECRET, {
-                    expiresIn: '30m',
-                });
-                refreshToken = Utility.generateRandomToken(45);
-                await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
-                    , [userDetails.userId, refreshToken, Utility.featureTime(48)]);
-                response = {
-                    success: true,
-                    token: token,
-                    refreshToken: refreshToken,
-                    role : userDetails.roleType
+        try {
+            await database.postgresPool.query('BEGIN');
+            queryResult = await database.postgresPool.query('SELECT id, username, password FROM users WHERE username=$1 ', [username]);
+            // if user exists check if password is valid then generate a token
+            if (queryResult.rowCount == 1) {
+                comparePassword = await bcrypt.compare(password, queryResult.rows[0].password);
+                userDetails = await UserService.get(queryResult.rows[0].id);
+                if (comparePassword) {
+                    // Generate JWT token
+                    token = jwt.sign({
+                        userId: userDetails.userId,
+                    }, process.env.JWT_SECRET, {
+                        expiresIn: '30m',
+                    });
+                    refreshToken = Utility.generateRandomToken(45);
+                    await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time) VALUES($1, $2, NOW(), $3) '
+                        , [userDetails.userId, refreshToken, Utility.featureTime(48)]);
+                    response = {
+                        success: true,
+                        token: token,
+                        refreshToken: refreshToken,
+                        role: userDetails.roleType
+                    }
+                    await database.postgresPool.query('COMMIT');
+                    return response;
                 }
-                return response;
+            }
+            response = {
+                success: false,
+                errorMessage: 'Invalid Username or Password '
             }
         }
-        response = {
-            success: false,
-            errorMessage: 'Invalid Username or Password '
+        catch (error) {
+            response = {
+                success : false,
+                errorMessage: 'Error processing request'
+            }
+            await database.postgresPool.query('ROLLBACK');
+            console.log(error);
         }
         return response;
     }
@@ -150,7 +162,6 @@ class UserService {
             }
             return results;
         }
-
         results = {
             success: false,
         }
@@ -186,15 +197,19 @@ class UserService {
             LIMIT 1
             `
         queryResult = await database.postgresPool.query(queryString, [userId]);
-        return {
-            userId: queryResult.rows[0].id,
-            userName: queryResult.rows[0].username,
-            fullName: queryResult.rows[0].first_name + " " + queryResult.rows[0].last_name,
-            email: queryResult.rows[0].email_address,
-            phoneNumber: queryResult.rows[0].phone_number,
-            roleType: queryResult.rows[0].role_type,
-            active: queryResult.rows[0].active
-        };
+        if (queryResult.rows.length == 1) {
+            return {
+                userId: queryResult.rows[0].id,
+                userName: queryResult.rows[0].username,
+                fullName: queryResult.rows[0].first_name + " " + queryResult.rows[0].last_name,
+                email: queryResult.rows[0].email_address,
+                phoneNumber: queryResult.rows[0].phone_number,
+                roleType: queryResult.rows[0].role_type,
+                active: queryResult.rows[0].active
+            };
+        } else {
+            throw new Error('User Not Found');
+        }
     }
 
     /**
