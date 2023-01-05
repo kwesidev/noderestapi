@@ -5,7 +5,7 @@
 -- Dumped from database version 12.13 (Ubuntu 12.13-1.pgdg20.04+1)
 -- Dumped by pg_dump version 15.1 (Ubuntu 15.1-1.pgdg20.04+1)
 
--- Started on 2022-12-21 09:10:23 SAST
+-- Started on 2023-01-05 07:20:35 SAST
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,7 +29,7 @@ CREATE SCHEMA public;
 ALTER SCHEMA public OWNER TO postgres;
 
 --
--- TOC entry 3005 (class 0 OID 0)
+-- TOC entry 3007 (class 0 OID 0)
 -- Dependencies: 6
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
@@ -42,7 +42,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 207 (class 1259 OID 33719)
+-- TOC entry 205 (class 1259 OID 33719)
 -- Name: roles; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -55,7 +55,7 @@ CREATE TABLE public.roles (
 ALTER TABLE public.roles OWNER TO postgres;
 
 --
--- TOC entry 206 (class 1259 OID 33717)
+-- TOC entry 204 (class 1259 OID 33717)
 -- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -71,8 +71,8 @@ CREATE SEQUENCE public.roles_id_seq
 ALTER TABLE public.roles_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3007 (class 0 OID 0)
--- Dependencies: 206
+-- TOC entry 3009 (class 0 OID 0)
+-- Dependencies: 204
 -- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
@@ -80,7 +80,7 @@ ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
 
 
 --
--- TOC entry 205 (class 1259 OID 33703)
+-- TOC entry 209 (class 1259 OID 41947)
 -- Name: user_refresh_tokens; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -89,6 +89,8 @@ CREATE TABLE public.user_refresh_tokens (
     user_id integer NOT NULL,
     token character varying NOT NULL,
     created timestamp without time zone NOT NULL,
+    ip_address character varying NOT NULL,
+    user_agent character varying NOT NULL,
     expiry_time timestamp without time zone NOT NULL
 );
 
@@ -96,7 +98,7 @@ CREATE TABLE public.user_refresh_tokens (
 ALTER TABLE public.user_refresh_tokens OWNER TO postgres;
 
 --
--- TOC entry 204 (class 1259 OID 33701)
+-- TOC entry 208 (class 1259 OID 41945)
 -- Name: user_refresh_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -111,8 +113,8 @@ CREATE SEQUENCE public.user_refresh_tokens_id_seq
 ALTER TABLE public.user_refresh_tokens_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3008 (class 0 OID 0)
--- Dependencies: 204
+-- TOC entry 3010 (class 0 OID 0)
+-- Dependencies: 208
 -- Name: user_refresh_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
@@ -120,7 +122,7 @@ ALTER SEQUENCE public.user_refresh_tokens_id_seq OWNED BY public.user_refresh_to
 
 
 --
--- TOC entry 209 (class 1259 OID 33730)
+-- TOC entry 207 (class 1259 OID 33730)
 -- Name: user_roles; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -134,7 +136,7 @@ CREATE TABLE public.user_roles (
 ALTER TABLE public.user_roles OWNER TO postgres;
 
 --
--- TOC entry 208 (class 1259 OID 33728)
+-- TOC entry 206 (class 1259 OID 33728)
 -- Name: user_roles_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -149,8 +151,8 @@ CREATE SEQUENCE public.user_roles_id_seq
 ALTER TABLE public.user_roles_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3009 (class 0 OID 0)
--- Dependencies: 208
+-- TOC entry 3011 (class 0 OID 0)
+-- Dependencies: 206
 -- Name: user_roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
@@ -192,7 +194,7 @@ CREATE SEQUENCE public.users_id_seq
 ALTER TABLE public.users_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3010 (class 0 OID 0)
+-- TOC entry 3012 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -201,7 +203,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- TOC entry 2853 (class 2604 OID 33722)
+-- TOC entry 2852 (class 2604 OID 33722)
 -- Name: roles id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -209,7 +211,7 @@ ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_
 
 
 --
--- TOC entry 2852 (class 2604 OID 33706)
+-- TOC entry 2854 (class 2604 OID 41950)
 -- Name: user_refresh_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -217,7 +219,7 @@ ALTER TABLE ONLY public.user_refresh_tokens ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- TOC entry 2854 (class 2604 OID 33733)
+-- TOC entry 2853 (class 2604 OID 33733)
 -- Name: user_roles id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -234,7 +236,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 --
 -- TOC entry 2997 (class 0 OID 33719)
--- Dependencies: 207
+-- Dependencies: 205
 -- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -245,24 +247,19 @@ COPY public.roles (id, type) FROM stdin;
 
 
 --
--- TOC entry 2995 (class 0 OID 33703)
--- Dependencies: 205
+-- TOC entry 3001 (class 0 OID 41947)
+-- Dependencies: 209
 -- Data for Name: user_refresh_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.user_refresh_tokens (id, user_id, token, created, expiry_time) FROM stdin;
-19	2	lqe4BtVTrCpHlBUtcvMiiEBp3j8Wk/jbCieTYsE4RyY=	2022-12-20 14:46:26.821578	2022-12-22 14:46:26.822
-20	2	ZNkrl2IbnRzNsfEqiz3myRNfq6MKfOEejZzSaMEYqGg=	2022-12-20 18:02:51.884476	2022-12-22 18:02:51.884
-22	2	+bOVd5HTji4lYcHEOzlwwLXHbrC9ThbxeviL2rJImjM=	2022-12-20 20:10:27.353585	2022-12-22 20:10:27.355
-23	5	KdoutPcZeXZMOHg58H2cY53llptX4z2hRXUANQieG6s=	2022-12-21 08:43:19.598039	2022-12-23 08:43:19.597
-28	5	z27l0SXKhJsD7CR9LKza4V656PUIdp5sktgj9HXCdGE=	2022-12-21 08:55:47.485825	2022-12-23 08:55:47.485
-29	5	WxzTAgZz77QezWkvfDcC7O22HKZY86xySPy2xGk9acA=	2022-12-21 09:06:59.746506	2022-12-23 09:06:59.746
+COPY public.user_refresh_tokens (id, user_id, token, created, ip_address, user_agent, expiry_time) FROM stdin;
+4	5	TREUPqQqlfjnXW4ayMU1QKt2lKUEU74hTaW0Qohe6/4=	2022-12-29 11:40:57.61911	::1	PostmanRuntime/7.28.4	2022-12-31 11:40:57.619
 \.
 
 
 --
 -- TOC entry 2999 (class 0 OID 33730)
--- Dependencies: 209
+-- Dependencies: 207
 -- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -274,7 +271,7 @@ COPY public.user_roles (id, user_id, role_id) FROM stdin;
 
 
 --
--- TOC entry 2993 (class 0 OID 33692)
+-- TOC entry 2995 (class 0 OID 33692)
 -- Dependencies: 203
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -287,8 +284,8 @@ COPY public.users (id, username, password, first_name, last_name, email_address,
 
 
 --
--- TOC entry 3011 (class 0 OID 0)
--- Dependencies: 206
+-- TOC entry 3013 (class 0 OID 0)
+-- Dependencies: 204
 -- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -296,17 +293,17 @@ SELECT pg_catalog.setval('public.roles_id_seq', 2, true);
 
 
 --
--- TOC entry 3012 (class 0 OID 0)
--- Dependencies: 204
+-- TOC entry 3014 (class 0 OID 0)
+-- Dependencies: 208
 -- Name: user_refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_refresh_tokens_id_seq', 29, true);
+SELECT pg_catalog.setval('public.user_refresh_tokens_id_seq', 4, true);
 
 
 --
--- TOC entry 3013 (class 0 OID 0)
--- Dependencies: 208
+-- TOC entry 3015 (class 0 OID 0)
+-- Dependencies: 206
 -- Name: user_roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -314,12 +311,12 @@ SELECT pg_catalog.setval('public.user_roles_id_seq', 3, true);
 
 
 --
--- TOC entry 3014 (class 0 OID 0)
+-- TOC entry 3016 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 5, true);
+SELECT pg_catalog.setval('public.users_id_seq', 6, true);
 
 
 --
@@ -332,7 +329,16 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- TOC entry 2858 (class 2606 OID 33711)
+-- TOC entry 2856 (class 2606 OID 33747)
+-- Name: users unique_value; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT unique_value UNIQUE (username, email_address);
+
+
+--
+-- TOC entry 2864 (class 2606 OID 41955)
 -- Name: user_refresh_tokens user_refresh_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -350,7 +356,7 @@ ALTER TABLE ONLY public.user_roles
 
 
 --
--- TOC entry 2856 (class 2606 OID 33700)
+-- TOC entry 2858 (class 2606 OID 33700)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -359,7 +365,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 2863 (class 2606 OID 33712)
+-- TOC entry 2867 (class 2606 OID 41956)
 -- Name: user_refresh_tokens user_refresh_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -368,7 +374,7 @@ ALTER TABLE ONLY public.user_refresh_tokens
 
 
 --
--- TOC entry 2864 (class 2606 OID 33741)
+-- TOC entry 2865 (class 2606 OID 33741)
 -- Name: user_roles user_roles_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -377,7 +383,7 @@ ALTER TABLE ONLY public.user_roles
 
 
 --
--- TOC entry 2865 (class 2606 OID 33736)
+-- TOC entry 2866 (class 2606 OID 33736)
 -- Name: user_roles user_roles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -386,7 +392,7 @@ ALTER TABLE ONLY public.user_roles
 
 
 --
--- TOC entry 3006 (class 0 OID 0)
+-- TOC entry 3008 (class 0 OID 0)
 -- Dependencies: 6
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
@@ -395,7 +401,7 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2022-12-21 09:10:23 SAST
+-- Completed on 2023-01-05 07:20:35 SAST
 
 --
 -- PostgreSQL database dump complete
