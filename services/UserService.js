@@ -50,7 +50,7 @@ class UserService {
                     });
                     refreshToken = Utility.generateRandomToken(45);
                     await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time,ip_address,user_agent) VALUES($1, $2, NOW(), $3, $4, $5) '
-                        , [userDetails.userId, refreshToken, Utility.featureTime(48), userIp, userAgent]);
+                        , [userDetails.userId, refreshToken, Utility.featureTime(1), userIp, userAgent]);
                     response = {
                         success: true,
                         token: token,
@@ -148,7 +148,7 @@ class UserService {
                 });
                 newRefreshToken = Utility.generateRandomToken(45);
                 await database.postgresPool.query('INSERT INTO user_refresh_tokens(user_id,token,created,expiry_time, ip_address, user_agent) VALUES($1, $2, NOW(), $3, $4, $5) '
-                    , [userDetails.user_id, newRefreshToken, Utility.featureTime(48), userIp, userAgent]);
+                    , [userDetails.user_id, newRefreshToken, Utility.featureTime(1), userIp, userAgent]);
                 await database.postgresPool.query('COMMIT');
             }
             catch (error) {
