@@ -11,16 +11,8 @@ function login() {
             if (response.success) {
                 window.localStorage.setItem('token', response.token);
                 window.localStorage.setItem('refreshToken', response.refreshToken);
-                apiRequest({
-                    path: 'http://localhost:3000/users/',
-                    method: 'GET',
-                    onSuccess: function (response) {
-                        document.getElementById('loginPage').style.display = 'none';
-                        document.getElementById('welcomePage').style.display = 'block';
-                        document.getElementById('welcomeMessage').innerHTML = '<h1>' + response.message + '</h1>';
-                        refreshTokenInterval = setInterval(refreshToken, 1200000);
-                    }
-                });
+                init();
+                refreshTokenInterval = setInterval(refreshToken, 1200000);
             }
         },
         onFailure: function (resultCode, resultText) {
@@ -40,6 +32,11 @@ function logout() {
                 window.location.reload();
                 clearInterval(refreshTokenInterval);
             }
+        },
+        onFailure: function(response){
+            window.localStorage.clear();
+            window.location.reload();
+            clearInterval(refreshTokenInterval);
         }
     });
 }
@@ -55,9 +52,11 @@ function refreshToken() {
                 window.localStorage.setItem('token',response.token);
                 window.localStorage.setItem('refreshToken',response.refreshToken);
             }
+        },
+        onFailure: function(response) {
+            logout();
         }
     });
-
 }
 function apiRequest(request) {
     let bodyRequest, xhr, method, path, token;
@@ -100,4 +99,16 @@ function apiRequest(request) {
         bodyRequest = JSON.stringify(request.data);
     }
     xhr.send(bodyRequest);
+}
+
+function init(){
+    apiRequest({
+        path: 'http://localhost:3000/users/',
+        method: 'GET',
+        onSuccess: function (response) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('welcomePage').style.display = 'block';
+            document.getElementById('welcomeMessage').innerHTML = '<h1>' + response.message + '</h1>';
+        }
+    });
 }
