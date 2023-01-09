@@ -11,8 +11,8 @@ function login() {
             if (response.success) {
                 window.localStorage.setItem('token', response.token);
                 window.localStorage.setItem('refreshToken', response.refreshToken);
-                init();
                 refreshTokenInterval = setInterval(refreshToken, 1200000);
+                init();
             }
         },
         onFailure: function (resultCode, resultText) {
