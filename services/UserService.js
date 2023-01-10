@@ -2,7 +2,12 @@ const database = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Utility = require('../utils');
+const fs = require('fs');
+const path = require('path');
+
 const SALTROUNDS = 10;
+const EmailService = require('./EmailService');
+const { query } = require('express');
 
 class UserService {
     /**
@@ -68,7 +73,7 @@ class UserService {
         }
         catch (error) {
             response = {
-                success : false,
+                success: false,
                 errorMessage: 'Error processing request'
             }
             await database.postgresPool.query('ROLLBACK');
@@ -122,7 +127,7 @@ class UserService {
             database.postgresPool.query('ROLLBACK');
         }
         results = {
-            success : false
+            success: false
         }
         return results;
     }
@@ -218,19 +223,128 @@ class UserService {
      * @return {Object}
      */
     static async deleteToken(refreshToken) {
-        let queryResult ;
+        let queryResult;
         queryResult = await database.postgresPool.query('DELETE FROM user_refresh_tokens WHERE token = $1', [refreshToken]);
         if (queryResult.rowCount > 0) {
             return {
-                success : true,
+                success: true,
             }
         }
         else {
             return {
-                success : false
+                success: false
             }
         }
+    }
+    /**
+     * Function to reset the password based on username or email
+     * @param {String} username
+     * @return {Object}
+     */
+    static async resetPasswordRequest(username) {
+        let queryResult, queryString, randomCode, expiryTime, mailDetails, emailTemplate;
+        queryString = 'SELECT id FROM users WHERE username = $1 OR email_address = $1  ';
+        queryResult = await database.postgresPool.query(queryString, [username]);
+        if (queryResult.rowCount == 1) {
+            const userDetails = await UserService.get(queryResult.rows[0].id);
+            // Send random code to user to for
+            randomCode = '';
+            for (let i = 0; i < 5; i++) {
+                randomCode += Math.floor(Math.random() * 9);
+            }
+            console.log(randomCode);
+            // Expire random code after 1hour when not used
+            expiryTime = Utility.featureTime(1);
+            queryString = 'INSERT INTO reset_password_requests(user_id, code, created, expiry_time) values($1, $2, NOW(), $3) ';
+            try {
+                await database.postgresPool.query('BEGIN');
+                queryResult = await database.postgresPool.query(queryString, [userDetails.userId, randomCode, expiryTime]);
+                // Sends the user email 
+                const filePath = path.resolve(__dirname + '/email-templates/PasswordRequest.html');
+                emailTemplate = await fs.promises.readFile(filePath, 'utf8');
+                emailTemplate = emailTemplate.replace('$RANDOM_CODE', randomCode);
+                mailDetails = {
+                    from: 'no-reply@testserver.com',
+                    to: userDetails.email,
+                    subject: 'Password Reset Request',
+                    body: emailTemplate
+                }
+                await new EmailService().sendMail(mailDetails);
+                await database.postgresPool.query('COMMIT');
+                return {
+                    success: true,
+                }
+            }
+            catch (error) {
+                console.log(error);
+                await database.postgresPool.query('ROLLBACK');
+            }
+            return {
+                success: false,
+            }
+        }
+    }
+    /**
+     * Function to verify the password and update password
+     * @param {String} code  a random generated string containing the code
+     * @param {String} newPassword  a new password to be set
+     * @return {Object}
+     */
+    static async verifyRessetPasswordAndResetPassword(code, newPassword) {
+        // Check if code has expired before resetting the password 
+        let queryResult, queryString, result ,userId;
+        try {
+            await database.postgresPool.query('BEGIN');
+            queryString = 'SELECT user_id FROM reset_password_requests WHERE code = $1 AND expiry_time >= NOW() ';
+            queryResult = await database.postgresPool.query(queryString, [code]);
+            if (queryResult.rows.length == 1) {
+                userId = queryResult.rows[0].user_id;
+                if (UserService.updatePassword(userId, newPassword)) {
+                    result = {
+                        success: true
+                    };
+                }
+                else {
+                    result = {
+                        success: false,
+                        error: 'Failed to update password'
+                    }
+                }
+            }
+            else {
+                result = {
+                    success: false,
+                    error: 'Verification Code is invalid or does not exists'
+                }
+            }
+            if (result.success) {
+                // Delete all the refresh tokens and also reset password requests if exists
+                await database.postgresPool.query('DELETE FROM user_refresh_tokens WHERE user_id = $1', [userId]);
+                await database.postgresPool.query('DELETE FROM reset_password_requests WHERE user_id = $1', [userId]);
+            }
+            await database.postgresPool.query('COMMIT');
+        } catch (error) {
+            console.log(error);
+            await database.postgresPool.query('ROLLBACK');
+        }
+        return result;
+    }
 
+    /**
+     * Function to update password
+     * @param {Integer} userId
+     * @return {bool}
+     */
+    static async updatePassword(userId, password) {
+        let queryResult, passwordHash;
+        passwordHash = await bcrypt.hash(password, SALTROUNDS);
+        queryResult = await database.postgresPool.query('UPDATE users SET password = $2 WHERE id = $1 ', [userId, passwordHash]);
+        if (queryResult.rows.rowCount > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 module.exports = UserService;

@@ -3,7 +3,7 @@ CREATE TABLE users(
     username VARCHAR UNIQUE NOT NULL ,
     password VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL,
+    last_name VARCHAR NOTa NULL,
     email_address VARCHAR UNIQUE NOT NULL ,
     phone_number VARCHAR NOT NULL,
     active BOOLEAN NOT NULL
@@ -31,3 +31,11 @@ CREATE TABLE user_roles(
 
 INSERT INTO roles(type) VALUES('ADMIN');
 INSERT INTO roles(type) VALUES('USER');
+
+CREATE TABLE reset_password_requests(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) NOT NULL,
+    code VARCHAR NOT NULL UNIQUE,
+    created TIMESTAMP NOT NULL,
+    expiry_time TIMESTAMP NOT NULL
+);
