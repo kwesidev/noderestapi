@@ -279,9 +279,9 @@ class UserService {
                 console.log(error);
                 await database.postgresPool.query('ROLLBACK');
             }
-            return {
-                success: false,
-            }
+        }
+        return {
+            success: false,
         }
     }
     /**
