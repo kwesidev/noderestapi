@@ -4,10 +4,8 @@ const jwt = require('jsonwebtoken');
 const Utility = require('../utils');
 const fs = require('fs');
 const path = require('path');
-
 const SALTROUNDS = 10;
 const EmailService = require('./EmailService');
-const { query } = require('express');
 
 class UserService {
     /**
