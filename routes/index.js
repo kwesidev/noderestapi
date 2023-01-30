@@ -98,5 +98,4 @@ router.post('/verify-reset-update-password', async (req, res, next) => {
     res.status(500).json(result);
   }
 });
-
 module.exports = router;

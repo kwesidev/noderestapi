@@ -250,7 +250,6 @@ class UserService {
             for (let i = 0; i < 5; i++) {
                 randomCode += Math.floor(Math.random() * 9);
             }
-            console.log(randomCode);
             // Expire random code after 1hour when not used
             expiryTime = Utility.featureTime(1);
             queryString = 'INSERT INTO reset_password_requests(user_id, code, created, expiry_time) values($1, $2, NOW(), $3) ';
