@@ -10,7 +10,7 @@ const checkAuth = (req, res, next) => {
     const accessToken = req.headers['token'];
     jwt.verify(accessToken, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            res.status(403).json({ message: 'Invalid Token' });
+            res.status(401).json({ success: false, error: 'Invalid Token' });
         } else {
             req.userId = decoded.userId;
             next();
@@ -29,7 +29,7 @@ const hasAdminAccess = async (req, res, next) => {
         next();
     }
     else {
-        res.status(403).json({ success: false, message: "You don't have permission to access this resource" });
+        res.status(403).json({ success: false, error: "You don't have permission to access this resource" });
     }
 }
 module.exports = { checkAuth, hasAdminAccess };
