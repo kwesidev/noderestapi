@@ -5,7 +5,7 @@ const UserService = require('../services/UserService');
 // Get current logged in User
 router.get('/', middleware.checkAuth, async(req, res, next) => {
   let result = await UserService.get(req.userId);
-  res.json({"message" : "Welcome  , " + result.userName});
+  res.json({"message" : "Welcome  , " + result.userName, details: result});
 });
 
 router.get('/list',middleware.checkAuth , middleware.hasAdminAccess , async(req,res) =>{

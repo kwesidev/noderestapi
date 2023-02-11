@@ -99,7 +99,7 @@ class UserService {
             passwordHash = await bcrypt.hash(userDetails.password, SALTROUNDS);
             queryResult = await database.postgresPool.query(queryString,
                 [
-                    userDetails.userName,
+                    userDetails.username,
                     passwordHash,
                     userDetails.firstName,
                     userDetails.lastName,

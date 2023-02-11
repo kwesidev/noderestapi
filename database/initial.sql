@@ -3,7 +3,7 @@ CREATE TABLE users(
     username VARCHAR UNIQUE NOT NULL ,
     password VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOTa NULL,
+    last_name VARCHAR NOT NULL,
     email_address VARCHAR UNIQUE NOT NULL ,
     phone_number VARCHAR NOT NULL,
     active BOOLEAN NOT NULL

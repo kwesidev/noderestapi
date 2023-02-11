@@ -5,7 +5,7 @@ const UserService = require('../services/UserService');
 const Utility = require('../utils');
 /* GET home page. */
 router.get('/', (req, res, next) => {
-  res.render('index', { title: 'Express' });
+  res.status(200).json({success: true ,message: "API Running"});
 });
 
 router.post('/login', async (req, res, next) => {
