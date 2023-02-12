@@ -5,10 +5,10 @@ class EmailService {
         this.host = process.env.SMTP_HOST;
         this.port = process.env.SMTP_PORT;
         this.username = process.env.SMTP_USERNAME;
-        this.password = process.env.SMPTP_PASSWORD;
+        this.password = process.env.SMTP_PASSWORD;
 
         this.nodemonTransport = nodeMailer.createTransport({
-            host: this.host,
+            host: this.host, 
             port: this.port,
             auth: {
                 user: this.username,
