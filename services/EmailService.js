@@ -12,7 +12,7 @@ class EmailService {
             port: this.port,
             auth: {
                 user: this.username,
-                password: this.password,
+                pass: this.password,
             }
         });
     }
