@@ -21,13 +21,23 @@ class UserService {
                 first_name,
                 last_name,
                 email_address,
-                phone_number
+                phone_number 
             FROM 
                users
             OFFSET $1 LIMIT 10
         `
         results = await database.postgresPool.query(queryString, [offset]);
-        return results.rows;
+        let response = [];
+        for (let i =0 ; i < results.rows.length; i++) {
+            response.push({
+                id : results.rows[i].id,
+                firstName: results.rows[i].first_name,
+                lastName: results.rows[i].last_name,
+                emailAddress: results.rows[i].email_address,
+                phoneNumber: results.rows[i].phone_number
+            });
+        }
+        return response;
     }
     /**
      * Function to login and generate a jwt token
