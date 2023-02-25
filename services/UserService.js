@@ -27,16 +27,10 @@ class UserService {
             OFFSET $1 LIMIT 10
         `
         results = await database.postgresPool.query(queryString, [offset]);
-        let response = [];
-        for (let i =0 ; i < results.rows.length; i++) {
-            response.push({
-                id : results.rows[i].id,
-                firstName: results.rows[i].first_name,
-                lastName: results.rows[i].last_name,
-                emailAddress: results.rows[i].email_address,
-                phoneNumber: results.rows[i].phone_number
-            });
-        }
+        const response = results.rows.map(
+            ({ id, first_name, last_name, email_address, phone_number }) => 
+                ({ id, firstName: first_name, lastName: last_name, emailAddress: email_address, phoneNumber: phone_number })
+        );
         return response;
     }
     /**
